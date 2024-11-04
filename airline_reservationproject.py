@@ -18,6 +18,7 @@ with open ('cusid_db.csv', mode='r') as db_read:
             print(f'\t{row[0]} {row[1]} ticket number {row[2]} customer id {row[3]} for the {row[4]} flight in seat {row[5]}.')
             line_count += 1
         print(f'Processed {line_count} lines.')
-
+      # booking a seat
+    
 
 
