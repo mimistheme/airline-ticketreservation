@@ -59,7 +59,7 @@ def book_ticket(first_name,last_name,flight_time,seat,flight_class="economy"):
         writer = csv.writer(db_write,delimiter=',',quoting=csv.QUOTE_MINIMAL)
         writer.writerow([first_name,last_name,customer_id,ticket_number,flight_time,seat,flight_class,status])
 
-
+        print(f"Booking successul!Ticker Number:{ticket_number}, Seat:{seat}")
 # # random number generator
 #     def custerid():
 #         for i in range(0, 10):
