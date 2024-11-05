@@ -25,13 +25,13 @@ def initialize_csv():
             rows = csv.writer(db_write,delimiter=',',quoting=csv.QUOTE_MINIMAL)
             rows.writerow(['First Name','Last. Name','Customer ID','Ticket Number','Flight Time','Seat','Class','Status'])
 initialize_csv()
-# function to write into csv file
-def write():
-    with open('cusid_db.csv', mode='w') as db_write:
-        rows = csv.writer(db_write, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-        rows.writerow(['Marie-at','NLemvo','350','256789','6:00am','13n','economy','active'])
-#run the function first before reading
-write()
+# function to write into csv file (EXAMPLE WITH MY NAME)
+# def write():
+#     with open('cusid_db.csv', mode='w') as db_write:
+#         rows = csv.writer(db_write, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+#         # rows.writerow(['Marie-at','NLemvo','350','256789','6:00am','13F','economy','active'])
+# #run the function first before reading
+# write()
 # function to read
 with open ('cusid_db.csv', mode='r') as db_read:
     csv_reader = csv.reader(db_read, delimiter=',')
@@ -59,7 +59,9 @@ def book_ticket(first_name,last_name,flight_time,seat,flight_class="economy"):
         writer = csv.writer(db_write,delimiter=',',quoting=csv.QUOTE_MINIMAL)
         writer.writerow([first_name,last_name,customer_id,ticket_number,flight_time,seat,flight_class,status])
 
-        print(f"Booking successul!Ticker Number:{ticket_number}, Seat:{seat}")
+        print(f"Booking successful!Ticker Number:{ticket_number}, Seat:{seat}")
+
+
 # # random number generator
 #     def custerid():
 #         for i in range(0, 10):
@@ -70,5 +72,50 @@ def book_ticket(first_name,last_name,flight_time,seat,flight_class="economy"):
 
 
 # function book ticket
+#Define seat rows and allowed seat letters per class
+UPPER_CLASS_ROWS = range(1,12)
+PREMIUM_CLASS_ROWS = range (21,28)
+ECONOMY_CLASS_ROWS = range (45,53)
+
+#Seat letters allowed for each class
+UPPER_CLASS_LETTERS = ['A','D','G','K']
+PREMIUM_CLASS_LETTERS = ['A','C','D','E','F','G','H','K']
+ECONOMY_CLASS_LETTERS = ['A','B','C','D','E','F','G','H','J','K']
+# function to generate seats based on the row range and seat letters for each class used r instead of row
+def generate_seats(row_range,seat_letters):
+    return [f"{r}{letter}" for r in row_range for letter in seat_letters]
+# Generate seats for each class based on the specified seat letters for each class
+upper_class_seats = generate_seats(UPPER_CLASS_ROWS,UPPER_CLASS_LETTERS)
+premium_class_seats= generate_seats(PREMIUM_CLASS_ROWS,PREMIUM_CLASS_LETTERS)
+economy_class_seats= generate_seats(ECONOMY_CLASS_ROWS,ECONOMY_CLASS_LETTERS)
+
+# combine all seats and limit to 100 seats/this caps the list
+total_seats = upper_class_seats + premium_class_seats + economy_class_seats
+limited_seats = total_seats[:100]
+# function to assign a seat based on the requested class
+def assign_seat(seat_class):
+    if seat_class == 'upper':
+        if upper_class_seats:
+            seat = random.choice(upper_class_seats)
+            upper_class_seats.remove(seat)
+            return seat
+        else:
+            return "No Upper Class seats available."
+    elif seat_class == 'premium':
+        if premium_class_seats:
+            seat = random.choice(premium_class_seats)
+            premium_class_seats.remove(seat)
+            return seat
+        else:
+            return "No Premium Class seats available."
+    elif seat_class == 'economy':
+        if economy_class_seats:
+            seat = random.choice(economy_class_seats)
+            economy_class_seats.remove(seat)
+            return seat
+        else:
+            return "No Economy Class seats available."
+
+
 # function cancel ticket
 # function update ticket
