@@ -115,7 +115,32 @@ def assign_seat(seat_class):
             return seat
         else:
             return "No Economy Class seats available."
+    else:
+        return "Invalid class selection."
+# Print available seats in each class for verification
+print("Initial Upper Class Seats:", len(upper_class_seats))
+print("Initial Premium Class Seats:", len(premium_class_seats))
+print("Initial Economy Class Seats:", len(economy_class_seats))
 
+#Example booking process
+def book_seat(seat_class):
+    seat = assign_seat(seat_class)
+    if "available" not in seat:
+        class_display = seat_class.capitalize() if seat_class.lower() !="upper" else "Upper"
+        print(f"Seat{seat} sucessfully booked in {class_display} Class.")
+    else:
+        print(seat) #This will display if no seats are available in the chosen class
+
+#Simulate bookings
+book_seat('upper')
+book_seat('premium')
+book_seat('economy')
+book_seat('upper') #attempt to book another upper class seat
+
+# Print remaining seats after booking attempts
+print("Remaining Upper Class Seats:", len (upper_class_seats))
+print("Remaining Premium Class Seats:",len(premium_class_seats))
+print("Remaining Economy Class Seats:",len(economy_class_seats))
 
 # function cancel ticket
 # function update ticket
