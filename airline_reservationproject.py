@@ -12,7 +12,7 @@ import random
 # custerid()
 
 # function to initialise the csv file with header
-FILENAME='cusid_db.csv'
+FILENAME='customerid_db.csv'
 def initialize_csv():
     #check if the file exists
     if not os.path.exists(FILENAME):
@@ -31,6 +31,13 @@ initialize_csv()
 #         rows = csv.writer(db_write, delimiter=',', quoting=csv.QUOTE_MINIMAL)
 #         # rows.writerow(['Marie-at','NLemvo','350','256789','6:00am','13F','economy','active'])
 # #run the function first before reading
+#Funbction to load existing bookings from the CSV
+
+
+#Funtion to save current bookings to the CSV file
+
+
+
 # write()
 # function to read
 with open ('cusid_db.csv', mode='r') as db_read:
@@ -47,12 +54,12 @@ with open ('cusid_db.csv', mode='r') as db_read:
 # Generate unique customer ID and ticket number
 def generate_customer_id():
     return random.randint(100,999)
-def generate_ticket_number():
-    return f"{generate_customer_id()}-{random.randint(10000,99999)}"
+def generate_ticket_number(customer_id):
+    return f"{customer_id}-{random.randint(10000,99999)}"
 # Function to book a ticket
 def book_ticket(first_name,last_name,flight_time,seat,flight_class="economy"):
     customer_id = generate_customer_id()
-    ticket_number = generate_ticket_number()
+    ticket_number = generate_ticket_number(customer_id)
     status = 'active'
 
     with open(FILENAME,mode='a', newline='') as db_write:
