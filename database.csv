@@ -1,1 +1,2 @@
-customer_id,ticket_num,seat,booking_time
+first_name,last_name,customer_id,ticket_num,seat,booking_time
+Marie-France,N'Lemvo,943,943-99454,46,2024-11-14 23:42:49.137695
