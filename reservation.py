@@ -12,3 +12,6 @@ class Reservation:
         print(f"\nCreated reservation for {self.first_name} {self.last_name} at {self.booking_time.strftime("%Y-%m-%d %H:%M:%S")}")
         print(f"The reservation number is {self.ticket_num} and the seat assigned is {self.seat}")
         print(f"There are now {remaining_seats} seats remaining\n")
+
+    def to_csv_row(self):
+        return [self.first_name, self.last_name, self.customer_id, self.ticket_num, self.seat, self.booking_time]

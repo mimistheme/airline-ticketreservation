@@ -19,6 +19,13 @@ class BookingHelper:
                 current_bookings.append(Reservation(row[0], row[1], row[2], row[3], row[4], row[5]))
 
         return current_bookings
+    
+    
+    # def get_headers(self):
+    #     with open(CSV_FILE, mode='r') as db_read:
+    #         reader = csv.reader(db_read)
+    #         # Skip header line
+    #         return next(reader)
 
 
     # Method to get an unassigned seat from the plane (this isn't the most efficient)
