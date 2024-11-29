@@ -8,8 +8,9 @@ class Reservation:
         self.booking_time = booking_time
 
     def print_reservation_details(self):
-        print("\nRESERVATION DETAILS")
-        print("-------------------")
+        print("\n-------------------------")
+        print("   RESERVATION DETAILS")
+        print("-------------------------")
         print(f"First name: {self.first_name}")
         print(f"Last name: {self.last_name}")
         print(f"Ticket Number: {self.ticket_num}")
