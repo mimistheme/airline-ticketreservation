@@ -5,7 +5,6 @@ from reservation import Reservation
 from booking_helper import BookingHelper
 from constants import TOTAL_SEATS
 from constants import CSV_FILE
-from constants import FILE_HEADERS
 
 class BookingManager:
 
