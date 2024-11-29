@@ -58,7 +58,7 @@ class BookingHelper:
         remaining_seats = 100 - len(current_bookings)
         if is_creation_case:
             remaining_seats -= 1
-        print(f"\nThere are {remaining_seats} seats remaining\n")
+        print(f"There are {remaining_seats} seats remaining\n")
 
     
     # Method to get an unassigned customer id

@@ -6,8 +6,6 @@ from constants import CSV_FILE
 from constants import FILE_HEADERS
 
 def main():
-    print("Airline Reservation System\n")
-
     booking_manager = BookingManager()
 
     if not os.path.exists(CSV_FILE):
@@ -17,6 +15,10 @@ def main():
     
     try:
         while True:
+            print("\nAirline Reservation System")
+            print("------------------------")
+            print("        MAIN MENU")
+            print("------------------------")
             print("1.Book a ticket")
             print("2.Cancel a ticket")
             print("3.View available seats")

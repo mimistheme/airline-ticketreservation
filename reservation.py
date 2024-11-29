@@ -1,5 +1,3 @@
-from datetime import datetime
-
 class Reservation:
     def __init__(self, first_name, last_name, customer_id, ticket_num, seat, booking_time):
         self.first_name = first_name
