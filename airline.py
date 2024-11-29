@@ -1,9 +1,19 @@
+import csv
+import os
+
 from booking_manager import BookingManager
+from constants import CSV_FILE
+from constants import FILE_HEADERS
 
 def main():
     print("Airline Reservation System\n")
 
     booking_manager = BookingManager()
+
+    if not os.path.exists(CSV_FILE):
+        with open(CSV_FILE, mode='w', newline='') as db_write:
+            writer = csv.writer(db_write)
+            writer.writerow(FILE_HEADERS)
     
     try:
         while True:
