@@ -61,6 +61,20 @@ class BookingHelper:
             self.update_bookings_file(updated_bookings)
         
         return booking
+    
+
+    def view_available_seats_helper(self):
+        current_bookings = self.get_current_bookings()
+        occupied_seats = set()
+
+        # Process bookings to determine occupied seats
+        for booking in current_bookings.values():
+            occupied_seats.add(int(booking.seat))
+            # If occupied seat is a window seat, we print information about this booking
+            if (self.is_window_seat(booking.seat)):
+                print(f"Window seat {booking.seat} is occupied by {booking.first_name} {booking.last_name} with ticket number {booking.ticket_num}")
+        
+        return occupied_seats
 
 
     # Method to get current bookings as a dictionary by reading the database csv file

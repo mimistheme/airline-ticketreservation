@@ -56,15 +56,7 @@ class BookingManager:
     def view_available_seats(self):
         print("Viewing available seats")
 
-        current_bookings = self.booking_helper.get_current_bookings()
-        occupied_seats = set()
-
-        # Look through current bookings and add the ticket number to a set
-        for booking in current_bookings.values():
-            occupied_seats.add(int(booking.seat))
-            # If occupied seat is a window seat, we print information about this booking
-            if (self.booking_helper.is_window_seat(booking.seat)):
-                print(f"Window seat {booking.seat} is occupied by {booking.first_name} {booking.last_name} with ticket number {booking.ticket_num}")
+        occupied_seats = self.booking_helper.view_available_seats_helper()
 
         print("\n----------------------------")
         print("        PLANE LAYOUT")
