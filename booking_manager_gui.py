@@ -81,7 +81,7 @@ class BookingManagerGUI:
             
             # Try to cancel ticket, if a KeyError is thrown (no booking found with that ticket number) show error box and return early
             try:
-                self.booking_helper.cancel_ticket_helper(ticket_number_)
+                current_bookings = self.booking_helper.cancel_ticket_helper(ticket_number_)
             except KeyError:
                 messagebox.showerror("Booking not found", "This booking could not be found.")
                 return
@@ -89,8 +89,14 @@ class BookingManagerGUI:
             # Get current time so we can display when the cancellation was processed to the user
             cancellation_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-            messagebox.showinfo("Canellation Successful", f"Booking with ticket number {ticket_number_} has been cancelled successfully at {cancellation_time}.")
-            
+            # Format cancellation confirmation string
+            confirmation_string = (
+                f"Booking with ticket number {ticket_number_} has been cancelled successfully at {cancellation_time}.\n"
+                "--------------------------------\n"
+                f"{self.booking_helper.get_remaining_seat_amount_string(current_bookings)}"
+            )
+            messagebox.showinfo("Canellation Successful", confirmation_string)
+        
             # Close the input window
             input_window.destroy() 
 
@@ -123,7 +129,7 @@ class BookingManagerGUI:
             text = f"{i}"  # Empty seat
             bg = "green"
 
-            # If seat number is in occupied seats set, change the presentation to an X and a red box to signify occupied
+            # If seat number is in the occupied seats set, change the presentation to an X and a red box to signify occupied
             if i in occupied_seats:
                 text = "X"  # Occupied
                 bg = "red"
@@ -139,6 +145,9 @@ class BookingManagerGUI:
             # Calculate the position of the seat in the grid
             # Row calculated by floor division of index by number of seats in row
             # Column calculated by modulo of index by number of seats in row
+            # [0,0] [0,1] [0,2]
+            # [1,0] [1,1] [1,2]
+            # [2,0] [2,1] [2,2]...
             row = (i - 1) // seats_per_row
             column = (i - 1) % seats_per_row
             label.grid(row=row, column=column, padx=1, pady=1)
