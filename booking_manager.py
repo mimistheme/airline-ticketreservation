@@ -11,81 +11,145 @@ class BookingManager:
     def __init__(self):
         self.booking_helper = BookingHelper()
 
-
+    # Method to book ticket by gathering necessary information from customer and saving it to csv database
     def book_ticket(self):
         print("\nBooking ticket")
+        # Prompting user for name input
         first_name = input("Please enter your first name - ")
         last_name = input("Please enter your last name - ")
 
+        # Check to see if flight is fully booked, if so, return early
         current_bookings = self.booking_helper.get_current_bookings()
         if len(current_bookings) == TOTAL_SEATS:
             print("\nThere are no free seats left on this flight")
             return
+        
+        # Generate booking information by using helper functions
         customer_id = self.booking_helper.generate_customer_id(current_bookings)
         ticket_number = self.booking_helper.generate_ticket_number(customer_id)
         seat = self.booking_helper.get_unassigned_seat(current_bookings)
+        # Check current time and transform to YYYY/MM/DD HH/MM/SS format to store booking time
         booking_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # Create Reservation object from above values
         new_reservation = Reservation(first_name, last_name, customer_id, ticket_number, seat, booking_time)
 
-        print(f"\nCreated reservation for {new_reservation.first_name} {new_reservation.last_name} at {new_reservation.booking_time}")
-        new_reservation.print_reservation_details()
-        self.booking_helper.print_remaining_seat_amount(current_bookings, True)
-
+        # Write the new booking to the end of csv file
         with open(CSV_FILE, mode='a', newline='') as db_write:
             writer = csv.writer(db_write)
             writer.writerow(new_reservation.to_csv_row())
 
+        # Print information about booking as well as remaining seat information
+        print(f"\nCreated reservation for {new_reservation.first_name} {new_reservation.last_name} at {new_reservation.booking_time}")
+        new_reservation.print_reservation_details()
+        # We call the booking helper to get an updated version of the current bookings object so our remaining seat count is accurate
+        self.booking_helper.print_remaining_seat_amount(self.booking_helper.get_current_bookings())
+
         return
     
     
+    # Method to cancel ticket by asking user for ticket number, checking if booking exists and removing it if it does
     def cancel_ticket(self):
         print("\nCancelling ticket")
+        # Prompting user to input ticket number to cancel
         ticket_number = input("Please enter your ticket number - ")
 
+        # Get current bookings, object returned is a dictionary with the key being ticket number
         current_bookings = self.booking_helper.get_current_bookings()
 
+        # Try to access dictionary, if value doesn't exist we get a KeyError and can return early as this booking doesn't exist
         try:
             current_bookings.pop(ticket_number)
         except KeyError:
             print("\nThis booking could not be found.\n")
             return
-            
+        
+        # Get current time so we can print when the cancellation was processed to the user
+        cancellation_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # Call helper method to overwrite bookings file without the booking we want cancelled
         self.booking_helper.update_bookings_file(current_bookings)
 
-        print(f"\nBooking with ticket number {ticket_number} has been cancelled successfully.\n")
+        # Print information about booking cancellation as well as remaining seat information
+        print(f"\nBooking with ticket number {ticket_number} has been cancelled successfully at {cancellation_time}.\n")
         self.booking_helper.print_remaining_seat_amount(current_bookings)
         return
 
-
+    
+    # Method to view seat layout (see available, occupied and window seats) as well as printing ticket information of occupied window seats
     def view_available_seats(self):
-        # Get current bookings, transform seat numbers to set, loop through all numbers to 100 and check set
         print("Viewing available seats")
+
+        current_bookings = self.booking_helper.get_current_bookings()
+        occupied_seats = set()
+
+        # Look through current bookings and add the ticket number to a set
+        for booking in current_bookings.values():
+            occupied_seats.add(int(booking.seat))
+            # If occupied seat is a window seat, we print information about this booking
+            if (self.booking_helper.is_window_seat(booking.seat)):
+                print(f"Window seat {booking.seat} is occupied by {booking.first_name} {booking.last_name} with ticket number {booking.ticket_num}")
+
+        print("\n----------------------------")
+        print("        PLANE LAYOUT")
+        print("----------------------------")
+        
+        plane_layout = []
+        # Loop through total number of seats on plane to create a top down view of plane's current booking status
+        for i in range(1, TOTAL_SEATS+1):
+            # Default presentation of an unoccupied seat is just the seat number
+            seat = str(i)
+            # If seat number is in occupied seats set, change the presentation to an X to signify occupied
+            if i in occupied_seats:
+                seat = "X"
+            # If seat number is determined to be window seat, prefix with new line (as window seats start a row) and add a (W) to denote window seat
+            if self.booking_helper.is_window_seat(i):
+                seat = "\n" + seat + "(W)"
+            
+            # Add | to improve visualisation of individual seats
+            seat = seat + " | "
+            # Append the modified seat number to list of all seats
+            plane_layout.append(seat)
+        
+        # Join list of formatted seats into a single string to print, as we prefixed each window seat with \n, we should get a plane layout with rows of 3 seats
+        print("".join(plane_layout))
+
+        # Print key to allow user to understand the output
+        print("\nKey:")
+        print("(W) - Window seat")
+        print("X - Occupied seat")
+            
         return
 
 
+    # Method to update an existing booking, takes an input of ticket number and allows user to change name on the booking
     def update_booking(self):
         print("Updating booking")
+        # Prompting user to input ticket number to update
         ticket_number = input("Please enter your ticket number - ")
         
+        # Getting booking by calling helper method
         booking = self.booking_helper.get_booking(ticket_number)
 
+        # If None is returned from helper method, we return early as booking doesn't exist
         if booking is None:
             print("\nThis booking does not exist.\n")
             return
         
         booking.print_reservation_details()
 
+        # Prompting user to input updated information about booking, if user inputs nothing we leave the first/last name as is
         print("Please enter your updated details or leave empty to keep current details")
-
         updated_first_name = input("Please enter an updated first name - ")
         updated_last_name = input("Please enter an updated last name - ")
 
+        # If user entered something, update the name. If user enters nothing, the input equals to "" which can can be treated as false
         if updated_first_name:
             booking.first_name = updated_first_name
         
         if updated_last_name:
             booking.last_name = updated_last_name
 
+        # Check if either first or last name was updated, update the booking dictionary and then update the bookings file to write the new information
         if updated_first_name or updated_last_name:
             updated_bookings = self.booking_helper.get_current_bookings()
             updated_bookings[booking.ticket_num] = booking
@@ -96,16 +160,19 @@ class BookingManager:
 
         return
 
-
+    # Method to print booking information of an existing booking
     def view_ticket_information(self):
         print("Viewing booking information\n") 
+        # Prompting user to input ticket number to display information of
         ticket_number = input("Please enter your ticket number - ")
         
         booking = self.booking_helper.get_booking(ticket_number)
         
+        # If None is returned from helper method, we return early as booking doesn't exist
         if booking is None:
             print("\nThis booking does not exist.\n")
         else:
+            # Print details if reservation is returned
             booking.print_reservation_details()
 
         return

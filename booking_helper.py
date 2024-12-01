@@ -25,16 +25,20 @@ class BookingHelper:
         return current_bookings
     
     
+    # Method to query a specific booking and return it from dictionary
     def get_booking(self, ticket_number):
         current_bookings = self.get_current_bookings()
         return current_bookings.get(ticket_number)
     
 
+    # Method used to overwrite the whole existing file in case we make any modifications to existing bookings
     def update_bookings_file(self, current_bookings):
         with open(CSV_FILE, mode='w', newline='') as db_write:
             writer = csv.writer(db_write)
+            # We write the file headers to the first row to make sure they are maintained and not overwritten by bookings
             writer.writerow(FILE_HEADERS)
             
+            # Loop through each booking and write to csv file
             for entry in current_bookings.values():
                 writer.writerow(entry.to_csv_row())
 
@@ -54,10 +58,9 @@ class BookingHelper:
         return assigned_seat
 
 
-    def print_remaining_seat_amount(self, current_bookings, is_creation_case = False):
+    # Method to calculate remaining seat count and print the value
+    def print_remaining_seat_amount(self, current_bookings):
         remaining_seats = 100 - len(current_bookings)
-        if is_creation_case:
-            remaining_seats -= 1
         print(f"There are {remaining_seats} seats remaining\n")
 
     
@@ -75,6 +78,13 @@ class BookingHelper:
         return customer_id
 
 
+    # Method to generate ticket number by concatenating customerId, '-' and a random 5 digit integer
     def generate_ticket_number(self, customer_id):
         return str(customer_id) + '-' + str(random.randint(10000,99999))
-
+    
+    
+    # Method to determine whether a seat is a window seat. Window seats are every 3rd seat starting from 1 (so 1,4,7,10...)
+    # We use % (modulo) to determine the divison remainder, if the output is 0 it means the number is divisible 
+    # As our sequence starts from 1, we need to add 2 to the seat number to determine if it is divisible by 3 and part of our sequence
+    def is_window_seat(self, seat_number):
+        return (int(seat_number) + 2) % 3 == 0
