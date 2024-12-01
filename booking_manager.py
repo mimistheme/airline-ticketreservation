@@ -23,20 +23,8 @@ class BookingManager:
         if len(current_bookings) == TOTAL_SEATS:
             print("\nThere are no free seats left on this flight")
             return
-        
-        # Generate booking information by using helper functions
-        customer_id = self.booking_helper.generate_customer_id(current_bookings)
-        ticket_number = self.booking_helper.generate_ticket_number(customer_id)
-        seat = self.booking_helper.get_unassigned_seat(current_bookings)
-        # Check current time and transform to YYYY/MM/DD HH/MM/SS format to store booking time
-        booking_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        # Create Reservation object from above values
-        new_reservation = Reservation(first_name, last_name, customer_id, ticket_number, seat, booking_time)
 
-        # Write the new booking to the end of csv file
-        with open(CSV_FILE, mode='a', newline='') as db_write:
-            writer = csv.writer(db_write)
-            writer.writerow(new_reservation.to_csv_row())
+        new_reservation = self.booking_helper.book_ticket_helper(first_name, last_name, current_bookings)
 
         # Print information about booking as well as remaining seat information
         print(f"\nCreated reservation for {new_reservation.first_name} {new_reservation.last_name} at {new_reservation.booking_time}")
@@ -52,22 +40,14 @@ class BookingManager:
         print("\nCancelling ticket")
         # Prompting user to input ticket number to cancel
         ticket_number = input("Please enter your ticket number - ")
-
-        # Get current bookings, object returned is a dictionary with the key being ticket number
-        current_bookings = self.booking_helper.get_current_bookings()
-
-        # Try to access dictionary, if value doesn't exist we get a KeyError and can return early as this booking doesn't exist
-        try:
-            current_bookings.pop(ticket_number)
-        except KeyError:
-            print("\nThis booking could not be found.\n")
-            return
         
+        try:
+            current_bookings = self.booking_helper.cancel_ticket_helper(ticket_number)
+        except KeyError:
+            return
+
         # Get current time so we can print when the cancellation was processed to the user
         cancellation_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        # Call helper method to overwrite bookings file without the booking we want cancelled
-        self.booking_helper.update_bookings_file(current_bookings)
 
         # Print information about booking cancellation as well as remaining seat information
         print(f"\nBooking with ticket number {ticket_number} has been cancelled successfully at {cancellation_time}.\n")

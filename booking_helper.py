@@ -1,15 +1,52 @@
 import csv
 import random
 
+from datetime import datetime
 from constants import TOTAL_SEATS
 from constants import CSV_FILE
 from constants import FILE_HEADERS
 from reservation import Reservation
 
-
+# Class used to help with booking operations, this class is re-used for both the Text and GUI booking managers
 class BookingHelper:
 
-     # Method to get current bookings as a dictionary by reading the database csv file
+    # Helper method to book ticket, re-used between text and GUI, returns Reservation object of the new reservation
+    def book_ticket_helper(self, first_name, last_name, current_bookings):
+        # Generate booking information by using helper functions
+        customer_id = self.generate_customer_id(current_bookings)
+        ticket_number = self.generate_ticket_number(customer_id)
+        seat = self.get_unassigned_seat(current_bookings)
+        # Check current time and transform to YYYY/MM/DD HH/MM/SS format to store booking time
+        booking_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # Create Reservation object from above values
+        new_reservation = Reservation(first_name, last_name, customer_id, ticket_number, seat, booking_time)
+
+        # Write the new booking to the end of csv file
+        with open(CSV_FILE, mode='a', newline='') as db_write:
+            writer = csv.writer(db_write)
+            writer.writerow(new_reservation.to_csv_row())
+        
+        return new_reservation
+    
+    # Helper method to cancel ticket, re-used between text and GUI, returns updated dictionary of current bookings
+    def cancel_ticket_helper(self, ticket_number):
+        # Get current bookings, object returned is a dictionary with the key being ticket number
+        current_bookings = self.get_current_bookings()
+
+        # Try to access dictionary, if value doesn't exist we get a KeyError and can return early as this booking doesn't exist
+        try:
+            current_bookings.pop(ticket_number)
+        except KeyError:
+            print("\nThis booking could not be found.")
+            raise KeyError
+
+        # Call helper method to overwrite bookings file without the booking we want cancelled
+        self.update_bookings_file(current_bookings)
+
+        return current_bookings
+
+
+    # Method to get current bookings as a dictionary by reading the database csv file
     def get_current_bookings(self):
         current_bookings = {}
         with open(CSV_FILE, mode='r') as db_read:
