@@ -31,8 +31,6 @@ class BookingManager:
         new_reservation.print_reservation_details()
         # We call the booking helper to get an updated version of the current bookings object so our remaining seat count is accurate
         self.booking_helper.print_remaining_seat_amount(self.booking_helper.get_current_bookings())
-
-        return
     
     
     # Method to cancel ticket by asking user for ticket number, checking if booking exists and removing it if it does
@@ -40,7 +38,7 @@ class BookingManager:
         print("\nCancelling ticket")
         # Prompting user to input ticket number to cancel
         ticket_number = input("Please enter your ticket number - ")
-        
+
         try:
             current_bookings = self.booking_helper.cancel_ticket_helper(ticket_number)
         except KeyError:
@@ -52,7 +50,6 @@ class BookingManager:
         # Print information about booking cancellation as well as remaining seat information
         print(f"\nBooking with ticket number {ticket_number} has been cancelled successfully at {cancellation_time}.\n")
         self.booking_helper.print_remaining_seat_amount(current_bookings)
-        return
 
     
     # Method to view seat layout (see available, occupied and window seats) as well as printing ticket information of occupied window seats
@@ -97,8 +94,6 @@ class BookingManager:
         print("\nKey:")
         print("(W) - Window seat")
         print("X - Occupied seat")
-            
-        return
 
 
     # Method to update an existing booking, takes an input of ticket number and allows user to change name on the booking
@@ -122,23 +117,10 @@ class BookingManager:
         updated_first_name = input("Please enter an updated first name - ")
         updated_last_name = input("Please enter an updated last name - ")
 
-        # If user entered something, update the name. If user enters nothing, the input equals to "" which can can be treated as false
-        if updated_first_name:
-            booking.first_name = updated_first_name
-        
-        if updated_last_name:
-            booking.last_name = updated_last_name
-
-        # Check if either first or last name was updated, update the booking dictionary and then update the bookings file to write the new information
-        if updated_first_name or updated_last_name:
-            updated_bookings = self.booking_helper.get_current_bookings()
-            updated_bookings[booking.ticket_num] = booking
-            self.booking_helper.update_bookings_file(updated_bookings)
+        updated_booking = self.booking_helper.update_ticket_helper(booking, updated_first_name, updated_last_name)
         
         print("\nUpdated booking details")
-        booking.print_reservation_details()
-
-        return
+        updated_booking.print_reservation_details()
 
     # Method to print booking information of an existing booking
     def view_ticket_information(self):
@@ -154,5 +136,3 @@ class BookingManager:
         else:
             # Print details if reservation is returned
             booking.print_reservation_details()
-
-        return

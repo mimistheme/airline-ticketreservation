@@ -21,6 +21,20 @@ class Reservation:
         print(f"Reservation booking date: {self.booking_time}\n")
 
 
+    # Prints out all information related to a booking
+    def get_reservation_details_string(self):
+        return (
+            "--------------------------------\n"
+            "   RESERVATION DETAILS\n"
+            "--------------------------------\n"
+            f"First name: {self.first_name}\n"
+            f"Last name: {self.last_name}\n"
+            f"Ticket Number: {self.ticket_num}\n"
+            f"Seat Number: {self.seat}\n"
+            f"Reservation booking date: {self.booking_time}\n"
+        )
+
+
     # Converts the reservation to a list so it can be written to the csv file in the correct format
     def to_csv_row(self):
         return [self.first_name, self.last_name, self.customer_id, self.ticket_num, self.seat, self.booking_time]

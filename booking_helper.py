@@ -44,6 +44,23 @@ class BookingHelper:
         self.update_bookings_file(current_bookings)
 
         return current_bookings
+    
+
+    def update_ticket_helper(self, booking, first_name, last_name):
+        # If user entered something, update the name. If user enters nothing, the input equals to "" which can can be treated as false
+        if first_name:
+            booking.first_name = first_name
+        
+        if last_name:
+            booking.last_name = last_name
+
+        # Check if either first or last name was updated, update the booking dictionary and then update the bookings file to write the new information
+        if first_name or last_name:
+            updated_bookings = self.get_current_bookings()
+            updated_bookings[booking.ticket_num] = booking
+            self.update_bookings_file(updated_bookings)
+        
+        return booking
 
 
     # Method to get current bookings as a dictionary by reading the database csv file
@@ -99,6 +116,13 @@ class BookingHelper:
     def print_remaining_seat_amount(self, current_bookings):
         remaining_seats = 100 - len(current_bookings)
         print(f"There are {remaining_seats} seats remaining\n")
+
+
+    # Method to calculate remaining seat count and print the value
+    def get_remaining_seat_amount_string(self, current_bookings):
+        remaining_seats = 100 - len(current_bookings)
+        string = f"There are {remaining_seats} seats remaining\n"
+        return (string)
 
     
     # Method to get an unassigned customer id
