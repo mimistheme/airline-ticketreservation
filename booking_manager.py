@@ -21,7 +21,13 @@ class BookingManager:
         
         # Prompting user for input
         first_name = input("Please enter your first name - ")
+        if first_name == "":
+            print("\nFirst name can't be empty")
+            return
         last_name = input("Please enter your last name - ")
+        if last_name == "":
+            print("\nLast name can't be empty")
+            return
         seat_number_input = input("Please enter the seat number you would like (leave empty for random) - ")
         
         # Helper function throws a ValueError if input is not an integer or outside the range 1-100
@@ -119,7 +125,13 @@ class BookingManager:
         # Prompting user to input updated information about booking, if user inputs nothing we leave the first/last name as is
         print("Please enter your updated details or leave empty to keep current details")
         updated_first_name = input("Please enter an updated first name - ")
-        updated_last_name = input("Please enter an updated last name - ")
+        if updated_first_name == "":
+            print("\nFirst name can't be empty")
+            return
+        updated_last_name = input("Please enter your last name - ")
+        if updated_last_name == "":
+            print("\nLast name can't be empty")
+            return
         seat_number_input = input("Please enter the seat number you would like - ")
         
         # Helper function throws a ValueError if input is not an integer or outside the range 1-100
