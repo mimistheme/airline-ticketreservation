@@ -11,11 +11,16 @@ from reservation import Reservation
 class BookingHelper:
 
     # Helper method to book ticket, re-used between text and GUI, returns Reservation object of the new reservation
-    def book_ticket_helper(self, first_name, last_name, current_bookings):
+    def book_ticket_helper(self, first_name, last_name, current_bookings, seat_number):
         # Generate booking information by using helper functions
         customer_id = self.generate_customer_id(current_bookings)
         ticket_number = self.generate_ticket_number(customer_id)
-        seat = self.get_unassigned_seat(current_bookings)
+
+        # Get a random seat number is a specific one is not passed in
+        if seat_number is None:
+            seat = self.get_unassigned_seat(current_bookings)
+        else:
+            seat = seat_number
         # Check current time and transform to YYYY/MM/DD HH/MM/SS format to store booking time
         booking_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         # Create Reservation object from above values
@@ -46,16 +51,19 @@ class BookingHelper:
         return current_bookings
     
 
-    def update_ticket_helper(self, booking, first_name, last_name):
-        # If user entered something, update the name. If user enters nothing, the input equals to "" which can can be treated as false
+    def update_ticket_helper(self, booking, first_name, last_name, seat_number):
+        # If user entered something, update the value. If user entered nothing, skip.
         if first_name:
             booking.first_name = first_name
         
         if last_name:
             booking.last_name = last_name
 
-        # Check if either first or last name was updated, update the booking dictionary and then update the bookings file to write the new information
-        if first_name or last_name:
+        if seat_number:
+            booking.seat = seat_number
+
+        # Check if any value was updated (not "" or None), update the booking dictionary and then update the bookings file to write the new information
+        if first_name or last_name or seat_number:
             updated_bookings = self.get_current_bookings()
             updated_bookings[booking.ticket_num] = booking
             self.update_bookings_file(updated_bookings)
@@ -63,7 +71,7 @@ class BookingHelper:
         return booking
     
 
-    def view_available_seats_helper(self):
+    def view_available_seats_helper(self, print_info = True):
         current_bookings = self.get_current_bookings()
         occupied_seats = set()
 
@@ -71,7 +79,7 @@ class BookingHelper:
         for booking in current_bookings.values():
             occupied_seats.add(int(booking.seat))
             # If occupied seat is a window seat, we print information about this booking
-            if (self.is_window_seat(booking.seat)):
+            if (self.is_window_seat(booking.seat) and print_info):
                 print(f"Window seat {booking.seat} is occupied by {booking.first_name} {booking.last_name} with ticket number {booking.ticket_num}")
         
         return occupied_seats
@@ -124,7 +132,31 @@ class BookingHelper:
                 assigned_seat = temp_seat
 
         return assigned_seat
+    
 
+    def convert_seat_number_input(self, seat_number):
+        try:
+            # If input was empty, then we assign the seat number to None (this is a valid input)
+            if seat_number == "":
+                return None
+            else:
+                # Attempt to convert number to an int, if it fails, we catch the ValueError
+                seat_number = int(seat_number)
+                # If number entered is outside the valid range, we throw a ValueError
+                if seat_number <= 0 or seat_number > TOTAL_SEATS:
+                    raise ValueError
+                return seat_number
+        except ValueError:
+            raise ValueError
+
+
+    # Check set to see if seat is already taken
+    def check_if_seat_available(self, seat_number):
+        occupied_seats = self.view_available_seats_helper(False)
+        if seat_number in occupied_seats:
+            return False 
+        
+        return True
 
     # Method to calculate remaining seat count and print the value
     def print_remaining_seat_amount(self, current_bookings):
@@ -136,7 +168,7 @@ class BookingHelper:
     def get_remaining_seat_amount_string(self, current_bookings):
         remaining_seats = 100 - len(current_bookings)
         string = f"There are {remaining_seats} seats remaining\n"
-        return (string)
+        return string
 
     
     # Method to get an unassigned customer id

@@ -1,10 +1,8 @@
-import csv
 import datetime
 
 from reservation import Reservation
 from booking_helper import BookingHelper
 from constants import TOTAL_SEATS
-from constants import CSV_FILE
 
 class BookingManager:
 
@@ -14,17 +12,31 @@ class BookingManager:
     # Method to book ticket by gathering necessary information from customer and saving it to csv database
     def book_ticket(self):
         print("\nBooking ticket")
-        # Prompting user for name input
-        first_name = input("Please enter your first name - ")
-        last_name = input("Please enter your last name - ")
-
+    
         # Check to see if flight is fully booked, if so, return early
         current_bookings = self.booking_helper.get_current_bookings()
         if len(current_bookings) == TOTAL_SEATS:
             print("\nThere are no free seats left on this flight")
             return
-
-        new_reservation = self.booking_helper.book_ticket_helper(first_name, last_name, current_bookings)
+        
+        # Prompting user for input
+        first_name = input("Please enter your first name - ")
+        last_name = input("Please enter your last name - ")
+        seat_number_input = input("Please enter the seat number you would like (leave empty for random) - ")
+        
+        # Helper function throws a ValueError if input is not an integer or outside the range 1-100
+        try:
+            seat_number = self.booking_helper.convert_seat_number_input(seat_number_input)
+        except ValueError:
+            print("\nSeat number entered is not valid.")
+            return
+        
+        # Return early is seat unavailable
+        if not self.booking_helper.check_if_seat_available(seat_number):
+            print(f"\nSeat {seat_number} is already taken!")
+            return
+        
+        new_reservation = self.booking_helper.book_ticket_helper(first_name, last_name, current_bookings, seat_number)
 
         # Print information about booking as well as remaining seat information
         print(f"\nCreated reservation for {new_reservation.first_name} {new_reservation.last_name} at {new_reservation.booking_time}")
@@ -108,8 +120,21 @@ class BookingManager:
         print("Please enter your updated details or leave empty to keep current details")
         updated_first_name = input("Please enter an updated first name - ")
         updated_last_name = input("Please enter an updated last name - ")
+        seat_number_input = input("Please enter the seat number you would like - ")
+        
+        # Helper function throws a ValueError if input is not an integer or outside the range 1-100
+        try:
+            seat_number = self.booking_helper.convert_seat_number_input(seat_number_input)
+        except ValueError:
+            print("\nSeat number entered is not valid.")
+            return
 
-        updated_booking = self.booking_helper.update_ticket_helper(booking, updated_first_name, updated_last_name)
+        # Return early is seat unavailable
+        if not self.booking_helper.check_if_seat_available(seat_number):
+            print(f"\nSeat {seat_number} is already taken!")
+            return
+
+        updated_booking = self.booking_helper.update_ticket_helper(booking, updated_first_name, updated_last_name, seat_number)
         
         print("\nUpdated booking details")
         updated_booking.print_reservation_details()

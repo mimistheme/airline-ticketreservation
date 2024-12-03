@@ -4,7 +4,6 @@ from tkinter import messagebox
 
 from booking_helper import BookingHelper
 from constants import TOTAL_SEATS
-from constants import BOX_SIZE
 
 class BookingManagerGUI:
     def __init__(self):
@@ -20,9 +19,9 @@ class BookingManagerGUI:
         # Create a pop-up window for the input
         input_window = tk.Toplevel()
         input_window.title("Book Ticket")
-        tk.Label(input_window, text="Booking ticket, please enter passenger's name").pack(pady=5)
+        tk.Label(input_window, text="Booking ticket, please enter passenger details").pack(pady=5)
         
-        # Create labels and entry fields for first and last name input
+        # Create labels and entry fields for passenger detail input
         tk.Label(input_window, text="First Name:").pack(pady=5)
         first_name = tk.Entry(input_window, width=30)
         first_name.pack(pady=5)
@@ -30,19 +29,36 @@ class BookingManagerGUI:
         tk.Label(input_window, text="Last Name:").pack(pady=5)
         last_name = tk.Entry(input_window, width=30)
         last_name.pack(pady=5)
+
+        tk.Label(input_window, text="Seat number (leave empty for random):").pack(pady=5)
+        seat_number = tk.Entry(input_window, width=30)
+        seat_number.pack(pady=5)
         
         # Method to handle submission of passenger detail form
         def submit_booking():
             first_name_ = first_name.get()
             last_name_ = last_name.get()
+            seat_number_ = seat_number.get()
             
             # If first or last name are empty, display error box and return early
             if not first_name_ or not last_name_:
                 messagebox.showerror("Input Error", "Please enter both first and last names.")
                 return
-
+            
+            # Helper function throws a ValueError if input is not an integer or outside the range 1-100
+            try:    
+                seat = self.booking_helper.convert_seat_number_input(seat_number_)
+            except ValueError:
+                messagebox.showerror("Input Error", "Seat number entered is not valid.")
+                return
+            
+            # Return early is seat unavailable
+            if not self.booking_helper.check_if_seat_available(seat):
+                messagebox.showerror("Seat taken", f"\nSeat {seat} is already taken!")
+                return
+            
             # Book ticket for customer and display ticket and remaining seat information in pop-up box
-            booking = self.booking_helper.book_ticket_helper(first_name_, last_name_, current_bookings)
+            booking = self.booking_helper.book_ticket_helper(first_name_, last_name_, current_bookings, seat)
             details = booking.get_reservation_details_string()
             confirmation_string = (
                 f"Ticket booked for {first_name_} {last_name_}!\n"
@@ -190,9 +206,9 @@ class BookingManagerGUI:
             second_window.title("Update Booking")
             tk.Label(second_window, text="Updating booking information, please enter updated information.").pack(pady=5)
             tk.Label(second_window, text="Fields left empty will be kept the same.").pack(pady=3)
+            tk.Label(second_window, text=booking.get_reservation_details_string()).pack(pady=3)
 
-            
-            # Create labels and entry fields for first and last name input
+            # Create labels and entry fields for passenger detail input
             tk.Label(second_window, text="First Name").pack(pady=5)
             first_name = tk.Entry(second_window, width=30)
             first_name.pack(pady=5)
@@ -201,12 +217,29 @@ class BookingManagerGUI:
             last_name = tk.Entry(second_window, width=30)
             last_name.pack(pady=5)
 
+            tk.Label(second_window, text="Seat number:").pack(pady=5)
+            seat_number = tk.Entry(second_window, width=30)
+            seat_number.pack(pady=5)
+
             # Method to handle submission of updated ticket information
             def submit_updated_information():
                 first_name_ = first_name.get()
                 last_name_ = last_name.get()
+                seat_number_ = seat_number.get()
+                
+                # Helper function throws a ValueError if input is not an integer or outside the range 1-100
+                try:
+                    seat = self.booking_helper.convert_seat_number_input(seat_number_)
+                except ValueError:
+                    messagebox.showerror("Input Error", "Seat number entered is not valid.")
+                    return
+                
+                # Return early is seat unavailable
+                if not self.booking_helper.check_if_seat_available(seat):
+                    messagebox.showerror("Seat taken", f"\nSeat {seat} is already taken!")
+                    return
             
-                updated_booking = self.booking_helper.update_ticket_helper(booking, first_name_, last_name_)
+                updated_booking = self.booking_helper.update_ticket_helper(booking, first_name_, last_name_, seat_number_)
                 
                 # Display updated reservation details
                 messagebox.showinfo(f"{updated_booking.ticket_num}", updated_booking.get_reservation_details_string())
